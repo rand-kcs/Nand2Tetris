@@ -41,43 +41,35 @@ CHIP ALU {
 
     PARTS:
     //// Replace this comment with your code.
+    // X zeor / negate;
     Mux16(a=x, b=false, sel=zx, out=x1);
 
     Not16(in=x1, out=notx);
     Mux16(a=x1, b=notx, sel=nx, out=x2);
 
+    // y zero / negate
     Mux16(a=y, b=false, sel=zy, out=y1);
 
     Not16(in=y1, out=noty);
     Mux16(a=y1, b=noty, sel=ny, out=y2);
 
+    // x + y  OR x & y?  
     Add16(a=x2, b=y2, out=outk1);
     And16(a=x2, b=y2, out=outk2);
 
     Mux16(a=outk2, b=outk1, sel=f, out=out1);
     Not16(in=out1, out=notout1);
-    Mux16(a=out1, b=notout1, sel=no, out=outfinal);
-    And16(a=outfinal, b=true, out=out);
+    Mux16(a=out1, b=notout1, sel=no, out=out,out[15] = nflag,out[0..7] = finalLeft, out[8..15] = finalRight);
 
 
-    Mux(a=false, b=true, sel=outfinal[15], out=ng);
 
-    Or(a=false, b=outfinal[0], out=or0);
-    Or(a=or0, b=outfinal[1], out=or1);
-    Or(a=or1, b=outfinal[2], out=or2);
-    Or(a=or2, b=outfinal[3], out=or3);
-    Or(a=or3, b=outfinal[4], out=or4);
-    Or(a=or4, b=outfinal[5], out=or5);
-    Or(a=or5, b=outfinal[6], out=or6);
-    Or(a=or6, b=outfinal[7], out=or7);
-    Or(a=or7, b=outfinal[8], out=or8);
-    Or(a=or8, b=outfinal[9], out=or9);
-    Or(a=or9, b=outfinal[10], out=or10);
-    Or(a=or10, b=outfinal[11], out=or11);
-    Or(a=or11, b=outfinal[12], out=or12);
-    Or(a=or12, b=outfinal[13], out=or13);
-    Or(a=or13, b=outfinal[14], out=or14);
-    Or(a=or14, b=outfinal[15], out=or15);
+    Mux(a=false, b=true, sel=nflag, out=ng);
 
-    Mux(a=true,b= false,sel=or15,out = zr);
+    Or8Way(in=finalLeft, out=left);
+    Or8Way(in=finalRight,out=right);
+    Or(a=left, b=right, out=zflag);
+
+    Mux(a=true,b=false,sel=zflag, out = zr);
+
+
 }
